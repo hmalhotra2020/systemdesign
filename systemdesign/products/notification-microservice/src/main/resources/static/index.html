@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WalletNotify | Dashboard & Analytics</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Mermaid.js for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Tailwind CSS (for structure utilities only, vanilla styling applied in style tag) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            /* Dark Theme (Default) */
+            --bg-color: #08090e;
+            --panel-bg: rgba(16, 18, 30, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-grad: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+            --accent-violet: #8b5cf6;
+            --accent-pink: #ec4899;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --header-bg: #0a0b12;
+            --sidebar-bg: #07080e;
+            --input-bg: #111827; /* gray-900 */
+        }
+
+        body.light-theme {
+            /* Light Theme */
+            --bg-color: #f8fafc;
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(15, 23, 42, 0.08);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --header-bg: #ffffff;
+            --sidebar-bg: #f1f5f9;
+            --input-bg: #ffffff;
+        }
+
+        /* Dynamic style overrides for Light Theme */
+        body.light-theme .text-white {
+            color: var(--text-primary) !important;
+        }
+        body.light-theme .text-gray-400 {
+            color: var(--text-secondary) !important;
+        }
+        body.light-theme .text-gray-300 {
+            color: var(--text-primary) !important;
+        }
+        body.light-theme .text-gray-500 {
+            color: #64748b !important;
+        }
+        body.light-theme .bg-gray-900 {
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+        }
+        body.light-theme .bg-white\/5 {
+            background-color: rgba(15, 23, 42, 0.04) !important;
+        }
+        body.light-theme .bg-white\/\[0\.04\] {
+            background-color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+            border-color: var(--border-color) !important;
+        }
+        body.light-theme .bg-white\/\[0\.01\] {
+            background-color: rgba(15, 23, 42, 0.01) !important;
+        }
+        body.light-theme .bg-white\/\[0\.02\] {
+            background-color: rgba(15, 23, 42, 0.02) !important;
+        }
+        body.light-theme .border-white\/10 {
+            border-color: var(--border-color) !important;
+        }
+        body.light-theme .border-white\/5 {
+            border-color: var(--border-color) !important;
+        }
+        body.light-theme .bg-\[\#0a0b12\] {
+            background-color: var(--header-bg) !important;
+        }
+        body.light-theme .bg-\[\#07080e\] {
+            background-color: var(--sidebar-bg) !important;
+        }
+        body.light-theme .nav-item:hover, body.light-theme .nav-item.active {
+            background: rgba(15, 23, 42, 0.04) !important;
+        }
+        body.light-theme .nav-item.active {
+            background: rgba(124, 58, 237, 0.08) !important;
+            border-color: rgba(124, 58, 237, 0.2) !important;
+            color: #7c3aed !important;
+        }
+        body.light-theme .h-8.w-px.bg-white\/10 {
+            background-color: var(--border-color) !important;
+        }
+        body.light-theme .bg-white\/5.border.border-white\/10 {
+            background-color: rgba(15, 23, 42, 0.04) !important;
+            color: var(--text-primary) !important;
+        }
+        body.light-theme .bg-gradient-to-r.from-white.to-gray-400 {
+            background: none !important;
+            -webkit-text-fill-color: initial !important;
+            color: var(--text-primary) !important;
+        }
+        body.light-theme .glow-circle {
+            opacity: 0.25;
+        }
+        body.light-theme .glass-card {
+            box-shadow: 0 8px 30px 0 rgba(15, 23, 42, 0.04);
+        }
+        body.light-theme #diagramModal {
+            background-color: rgba(248, 250, 252, 0.98) !important;
+        }
+        body.light-theme #diagramModal h3 {
+            color: var(--text-primary) !important;
+        }
+        body.light-theme #diagramModal button {
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+        body.light-theme #diagramModal button:hover {
+            background-color: rgba(15, 23, 42, 0.04) !important;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-display);
+        }
+
+        /* Glassmorphism Card style */
+        .glass-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 12px 40px 0 rgba(139, 92, 246, 0.08);
+        }
+
+        /* Gradient buttons */
+        .btn-primary {
+            background: var(--primary-grad);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(124, 58, 237, 0.45);
+        }
+
+        /* Sidebar Navigation */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 18px;
+            color: var(--text-secondary);
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            margin-bottom: 6px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: var(--accent-violet);
+        }
+
+        /* Table custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.4);
+        }
+
+        /* Status Pills */
+        .badge-sent {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .badge-failed {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        .badge-opted_out {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning-color);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        /* Animated glows */
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(50px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Tab Transition */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mermaid styling override */
+        .mermaid {
+            background: transparent !important;
+        }
+        .mermaid svg {
+            background: transparent !important;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    
+    <!-- Background glows -->
+    <div class="glow-circle w-[500px] h-[500px] top-[-10%] left-[-10%]"></div>
+    <div class="glow-circle w-[600px] h-[600px] bottom-[-20%] right-[-10%]" style="background: radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(0,0,0,0) 70%);"></div>
+
+    <!-- Header bar -->
+    <header class="h-16 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between px-8 bg-[#0a0b12] sticky top-0 z-40">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center font-bold text-white shadow-md">
+                W
+            </div>
+            <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                WalletNotify
+            </span>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded bg-violet-900/40 text-violet-300 border border-violet-700/30">
+                Service Engine
+            </span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-sm text-gray-400">
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                H2 Engine Connected
+            </div>
+            <button onclick="toggleTheme()" id="themeToggleBtn" class="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all" title="Toggle Light/Dark Theme">
+                <svg id="themeIcon" class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Loaded dynamically -->
+                </svg>
+            </button>
+            <div class="h-8 w-px bg-white/10"></div>
+            <div class="text-sm font-medium bg-white/5 border border-white/10 px-3 py-1 rounded-lg">
+                demo_user
+            </div>
+        </div>
+    </header>
+
+    <div class="flex min-h-[calc(screen-64px)]">
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-[rgba(255,255,255,0.06)] p-6 shrink-0 bg-[#07080e]">
+            <div class="nav-item active" onclick="switchTab('analytics', this)" id="default-tab">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Analytics Dashboard
+            </div>
+            <div class="nav-item" onclick="switchTab('inbox', this)">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20"></path></svg>
+                Inbox & Send Simulation
+            </div>
+            <div class="nav-item" onclick="switchTab('templates', this)">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                Template Manager
+            </div>
+            <div class="nav-item" onclick="switchTab('docs', this)">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                System Documentation
+            </div>
+        </aside>
+
+        <!-- Main Content Panel -->
+        <main class="flex-grow p-8 overflow-y-auto">
+            
+            <!-- ================= TAB 1: ANALYTICS ================= -->
+            <section id="tab-analytics" class="tab-content active space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-white">System Analytics</h1>
+                        <p class="text-gray-400 mt-1">Real-time metrics for delivery outputs, success rates and opting configurations.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <select id="timeRangeSelect" onchange="loadAnalytics()" class="bg-gray-900 border border-white/10 px-4 py-2 rounded-xl text-sm font-medium focus:outline-none focus:border-violet-500">
+                            <option value="7">Last 7 Days</option>
+                            <option value="15">Last 15 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                        </select>
+                        <button onclick="loadAnalytics()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.5"></path></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-card p-6 flex flex-col justify-between">
+                        <span class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Total Dispatched</span>
+                        <span id="kpi-total" class="text-4xl font-extrabold text-white mt-2">0</span>
+                        <span class="text-xs text-gray-500 mt-1">Across all channels</span>
+                    </div>
+                    <div class="glass-card p-6 flex flex-col justify-between">
+                        <span class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Delivered (Success)</span>
+                        <span id="kpi-sent" class="text-4xl font-extrabold text-emerald-400 mt-2">0</span>
+                        <span id="kpi-sent-pct" class="text-xs text-emerald-500 mt-1">0% success rate</span>
+                    </div>
+                    <div class="glass-card p-6 flex flex-col justify-between">
+                        <span class="text-xs uppercase tracking-wider text-amber-500 font-semibold">Opted Out (Preferences)</span>
+                        <span id="kpi-opted-out" class="text-4xl font-extrabold text-amber-500 mt-2">0</span>
+                        <span id="kpi-opted-out-pct" class="text-xs text-amber-500 mt-1">0% volume</span>
+                    </div>
+                    <div class="glass-card p-6 flex flex-col justify-between">
+                        <span class="text-xs uppercase tracking-wider text-red-500 font-semibold">Failed Attempts</span>
+                        <span id="kpi-failed" class="text-4xl font-extrabold text-red-500 mt-2">0</span>
+                        <span id="kpi-failed-pct" class="text-xs text-red-500 mt-1">0% failure rate</span>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Line Chart for Daily Timeline -->
+                    <div class="glass-card p-6 lg:col-span-2">
+                        <h3 class="text-lg font-bold mb-4">Volume Output History</h3>
+                        <div class="h-80 w-full relative">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Pie Chart for Channel & Status Breakdown -->
+                    <div class="glass-card p-6 flex flex-col justify-between">
+                        <h3 class="text-lg font-bold mb-4">Channel & Delivery Share</h3>
+                        <div class="h-64 flex justify-center items-center relative">
+                            <canvas id="channelChart"></canvas>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
+                            <div class="p-2 bg-white/5 rounded-lg border border-white/5">
+                                <span class="block font-semibold text-violet-400">Email</span>
+                                <span id="cnt-email" class="text-white font-bold">0</span>
+                            </div>
+                            <div class="p-2 bg-white/5 rounded-lg border border-white/5">
+                                <span class="block font-semibold text-pink-400">SMS</span>
+                                <span id="cnt-sms" class="text-white font-bold">0</span>
+                            </div>
+                            <div class="p-2 bg-white/5 rounded-lg border border-white/5">
+                                <span class="block font-semibold text-cyan-400">In-App</span>
+                                <span id="cnt-inapp" class="text-white font-bold">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Logs Table -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">Recent Dispatch History</h3>
+                        <span class="text-xs text-gray-500">Showing last 15 attempts</span>
+                    </div>
+                    <div class="overflow-x-auto custom-scroll max-h-[450px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-white/10 text-xs uppercase tracking-wider text-gray-400">
+                                    <th class="py-3 px-4 font-semibold">Time</th>
+                                    <th class="py-3 px-4 font-semibold">User</th>
+                                    <th class="py-3 px-4 font-semibold">Template Key</th>
+                                    <th class="py-3 px-4 font-semibold">Channel</th>
+                                    <th class="py-3 px-4 font-semibold">Status</th>
+                                    <th class="py-3 px-4 font-semibold">Recipient Info</th>
+                                    <th class="py-3 px-4 font-semibold">Output Content / Error Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody" class="text-sm">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 2: INBOX & SEND SIMULATION ================= -->
+            <section id="tab-inbox" class="tab-content space-y-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white">Inbox & Send Simulation</h1>
+                    <p class="text-gray-400 mt-1">Simulate notifications, manage user channel preferences, and test in-app inboxes.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left: User Configuration & Preferences -->
+                    <div class="glass-card p-6 space-y-6">
+                        <h3 class="text-lg font-bold border-b border-white/10 pb-3">User & Preference Toggle</h3>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-sm text-gray-400">Select User Account</label>
+                            <select id="simUserSelect" onchange="loadUserSettingsAndInbox()" class="w-full bg-gray-900 border border-white/10 p-3 rounded-xl focus:outline-none focus:border-violet-500">
+                                <option value="demo_user" selected>demo_user (Active Target)</option>
+                                <option value="user_1">user_1 (Historical User)</option>
+                                <option value="user_2">user_2</option>
+                                <option value="user_5">user_5</option>
+                                <option value="user_10">user_10</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="block text-sm text-gray-400">Opt-In Delivery Settings</label>
+                            
+                            <div class="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+                                <span class="text-sm font-medium">Email Notifications</span>
+                                <input type="checkbox" id="prefEmail" class="w-5 h-5 accent-violet-600 rounded bg-gray-900 border-white/10">
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+                                <span class="text-sm font-medium">SMS Notifications</span>
+                                <input type="checkbox" id="prefSms" class="w-5 h-5 accent-violet-600 rounded bg-gray-900 border-white/10">
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+                                <span class="text-sm font-medium">In-App Notifications</span>
+                                <input type="checkbox" id="prefInApp" class="w-5 h-5 accent-violet-600 rounded bg-gray-900 border-white/10">
+                            </div>
+
+                            <button onclick="saveUserSettings()" class="w-full py-3 btn-primary text-center">
+                                Save Preferences
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Simulated Mobile In-App Inbox -->
+                    <div class="glass-card p-6 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold border-b border-white/10 pb-3 mb-4">Simulated Mobile Wallet Inbox</h3>
+                            <div class="space-y-3 max-h-[420px] overflow-y-auto custom-scroll pr-2" id="inboxContainer">
+                                <!-- Dynamic notifications -->
+                                <p class="text-gray-500 text-sm text-center py-8">Select a user to pull in-app messages...</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-white/10 pt-3 mt-4 flex items-center justify-between text-xs text-gray-500">
+                            <span>Inbox acts as GET /api/notifications/in-app</span>
+                            <button onclick="loadUserSettingsAndInbox()" class="hover:text-white transition">Refresh Inbox</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Trigger Send Simulator -->
+                    <div class="glass-card p-6 space-y-4">
+                        <h3 class="text-lg font-bold border-b border-white/10 pb-3">Trigger Notification Dispatcher</h3>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-sm text-gray-400">Template Event Trigger</label>
+                            <select id="sendTemplateSelect" onchange="updatePlaceholderFields()" class="w-full bg-gray-900 border border-white/10 p-3 rounded-xl focus:outline-none focus:border-violet-500">
+                                <option value="WALLET_CREDITED">WALLET_CREDITED (Wallet top-up)</option>
+                                <option value="WALLET_DEBITED">WALLET_DEBITED (Account checkout)</option>
+                                <option value="OTP_VERIFICATION">OTP_VERIFICATION (One-Time Verification)</option>
+                                <option value="TRANSACTION_FAILED">TRANSACTION_FAILED (Transaction Error)</option>
+                                <option value="WELCOME">WELCOME (Account onboarding)</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-3" id="placeholderFieldsContainer">
+                            <!-- Dynamic parameter fields -->
+                        </div>
+
+                        <div class="border-t border-white/10 pt-3 space-y-3">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="space-y-1">
+                                    <label class="text-xs text-gray-500">Recipient Email</label>
+                                    <input type="text" id="sendEmail" class="w-full bg-gray-900 border border-white/10 p-2 rounded-lg text-sm focus:outline-none focus:border-violet-500" placeholder="user@domain.com">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs text-gray-500">Recipient Phone</label>
+                                    <input type="text" id="sendPhone" class="w-full bg-gray-900 border border-white/10 p-2 rounded-lg text-sm focus:outline-none focus:border-violet-500" placeholder="+15551234">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="triggerNotificationSend()" class="w-full py-3 btn-primary text-center">
+                            Trigger Notification
+                        </button>
+
+                        <div id="sendResponseContainer" class="hidden p-3 bg-gray-900 border border-white/5 rounded-xl text-xs space-y-1">
+                            <span class="block font-semibold">Response Status:</span>
+                            <pre id="sendResponseText" class="text-violet-300 overflow-x-auto"></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 3: TEMPLATE MANAGER ================= -->
+            <section id="tab-templates" class="tab-content space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-white">Database Notification Templates</h1>
+                        <p class="text-gray-400 mt-1">Read and update DB templates with parameters placeholders `{{variable_name}}`.</p>
+                    </div>
+                    <button onclick="openCreateTemplateModal()" class="btn-primary px-5 py-2.5">
+                        + Add Template
+                    </button>
+                </div>
+
+                <div class="glass-card p-6">
+                    <div class="overflow-x-auto custom-scroll">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-white/10 text-xs uppercase tracking-wider text-gray-400">
+                                    <th class="py-3 px-4 font-semibold">Template Key</th>
+                                    <th class="py-3 px-4 font-semibold">Channel</th>
+                                    <th class="py-3 px-4 font-semibold">Subject Template</th>
+                                    <th class="py-3 px-4 font-semibold">Body Template</th>
+                                    <th class="py-3 px-4 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="templatesTableBody" class="text-sm">
+                                <!-- Dynamic templates -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Create/Edit Modal Panel (Floating Overlay) -->
+                <div id="templateModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <div class="glass-card p-6 w-full max-w-xl space-y-4">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                            <h3 id="modalTitle" class="text-lg font-bold">Add New Template</h3>
+                            <button onclick="closeTemplateModal()" class="text-gray-400 hover:text-white">&times;</button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs text-gray-400">Template Key</label>
+                                <input type="text" id="tplKey" class="w-full bg-gray-900 border border-white/10 p-3 rounded-lg focus:outline-none focus:border-violet-500" placeholder="e.g. LOW_BALANCE">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs text-gray-400">Delivery Channel</label>
+                                <select id="tplChannel" class="w-full bg-gray-900 border border-white/10 p-3 rounded-lg focus:outline-none focus:border-violet-500">
+                                    <option value="EMAIL">EMAIL</option>
+                                    <option value="SMS">SMS</option>
+                                    <option value="IN_APP">IN_APP</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-400">Subject Template (Email only)</label>
+                            <input type="text" id="tplSubject" class="w-full bg-gray-900 border border-white/10 p-3 rounded-lg focus:outline-none focus:border-violet-500" placeholder="e.g. Low Balance Alert">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-400">Body Content Template</label>
+                            <textarea id="tplBody" rows="4" class="w-full bg-gray-900 border border-white/10 p-3 rounded-lg focus:outline-none focus:border-violet-500" placeholder="Hello {{username}}, balance is {{balance}}."></textarea>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-3 border-t border-white/10">
+                            <button onclick="closeTemplateModal()" class="px-4 py-2 border border-white/10 hover:bg-white/5 rounded-lg text-sm transition">Cancel</button>
+                            <button onclick="saveTemplate()" class="btn-primary px-5 py-2 text-sm">Save Template</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 4: DOCUMENTATION ================= -->
+            <section id="tab-docs" class="tab-content space-y-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white">Technical Documentation & Flow</h1>
+                    <p class="text-gray-400 mt-1">Visual pipeline architecture flow diagrams and API interface document.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Flow Diagram -->
+                    <div class="glass-card p-6 lg:col-span-2 space-y-4">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                            <h3 class="text-lg font-bold">Delivery Pipeline Architecture Flow</h3>
+                            <button onclick="maximizeDiagram()" class="text-xs text-violet-400 hover:text-violet-300 font-semibold flex items-center gap-1.5 bg-violet-500/10 hover:bg-violet-500/20 px-2.5 py-1.5 rounded-lg border border-violet-500/20 transition-all">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                                Fullscreen
+                            </button>
+                        </div>
+                        
+                        <!-- Mermaid visual display -->
+                        <div id="diagramContainer" class="p-6 bg-white/[0.02] border border-white/5 rounded-2xl overflow-x-auto flex justify-center">
+                            <pre class="mermaid text-center">
+flowchart TD
+    Client["Client Wallet Service"] -->|"POST /api/notifications/send"| Controller["NotificationController"]
+    Controller -->|"Request Payload"| Service["NotificationService"]
+    Service -->|"1. Find Templates"| DB_Templates[("Database Templates")]
+    Service -->|"2. Check Preferences"| DB_Settings[("Database Settings")]
+    Service -->|"3. Interpolate variables"| Parser["Template Parser"]
+    Service -->|"4. Dispatch Notification"| Senders{"Senders Router"}
+    
+    Senders -->|"Email Enabled"| Email["EmailSender"]
+    Senders -->|"SMS Enabled"| SMS["SmsSender"]
+    Senders -->|"In-App Enabled"| InApp["InAppSender"]
+    
+    Email -->|"Console Log / AWS SES"| ExternalEmail["Email Service"]
+    SMS -->|"Console Log / AWS SNS"| ExternalSMS["SMS Service"]
+    InApp -->|"Insert"| DB_InApp[("Database In-App")]
+    
+    Service -->|"5. Write Audit Log"| DB_Logs[("Database Audit Logs")]
+                            </pre>
+                        </div>
+                        <p class="text-xs text-gray-500 italic text-center">Flow rendered dynamically with Mermaid.js</p>
+                    </div>
+
+                    <!-- Tech specs summary -->
+                    <div class="glass-card p-6 space-y-4">
+                        <h3 class="text-lg font-bold border-b border-white/10 pb-3">Database Entities Summary</h3>
+                        <div class="space-y-4 text-xs text-gray-400">
+                            <div>
+                                <span class="font-bold text-violet-300 block mb-1">1. notification_templates</span>
+                                Holds message templates dynamically matched by template key & delivery channel. Subject template supports nulls.
+                            </div>
+                            <div>
+                                <span class="font-bold text-violet-300 block mb-1">2. notification_settings</span>
+                                Opt-out checkboxes for specific channels configured globally per userId.
+                            </div>
+                            <div>
+                                <span class="font-bold text-violet-300 block mb-1">3. in_app_notifications</span>
+                                Holds records targeted at the in-app client view container with an read flag.
+                            </div>
+                            <div>
+                                <span class="font-bold text-violet-300 block mb-1">4. notification_logs</span>
+                                Tracks delivery logs (SENT, FAILED, OPTED_OUT) with payloads and exceptions.
+                            </div>
+                            <div class="pt-3 border-t border-white/10">
+                                <a href="file:///Users/rajm/work_all/practice/antigravity/notification-microservice/DOCUMENTATION.md" class="text-violet-400 hover:underline">
+                                    Open local DOCUMENTATION.md &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Fullscreen Diagram Modal -->
+    <div id="diagramModal" class="hidden fixed inset-0 z-50 flex flex-col bg-[#08090e]/98 backdrop-blur-md p-8">
+        <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-4 shrink-0">
+            <h3 class="text-xl font-bold text-white">Delivery Pipeline Flow Diagram</h3>
+            <div class="flex items-center gap-4">
+                <div class="flex gap-2">
+                    <button onclick="zoomDiagram(1.2)" class="px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-sm font-semibold transition-all text-white" title="Zoom In">Zoom In (+)</button>
+                    <button onclick="zoomDiagram(0.8)" class="px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-sm font-semibold transition-all text-white" title="Zoom Out">Zoom Out (-)</button>
+                    <button onclick="zoomDiagram(0)" class="px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-xs font-semibold transition-all text-white">Reset</button>
+                </div>
+                <button onclick="closeDiagramModal()" class="px-4 py-2 border border-white/10 hover:bg-white/5 rounded-lg text-sm text-gray-300 hover:text-white transition-all">Close</button>
+            </div>
+        </div>
+        <div class="flex-grow overflow-auto flex justify-center items-center custom-scroll p-4 relative" id="modalDiagramViewport">
+            <!-- The SVG will be placed here at a larger scale -->
+            <div id="modalDiagramContent" class="transition-transform duration-200 origin-center">
+            </div>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <script>
+        // Init Mermaid
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+
+        // Chart instances
+        let timelineChart = null;
+        let channelChart = null;
+
+        // Current Active Tab
+        function switchTab(tabId, el) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            // Remove active style from nav
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // Show active tab
+            document.getElementById('tab-' + tabId).classList.add('active');
+            el.classList.add('active');
+
+            // Render triggers
+            if (tabId === 'analytics') {
+                loadAnalytics();
+            } else if (tabId === 'inbox') {
+                loadUserSettingsAndInbox();
+                updatePlaceholderFields();
+            } else if (tabId === 'templates') {
+                loadTemplates();
+            } else if (tabId === 'docs') {
+                setTimeout(() => {
+                    mermaid.run({ querySelector: '.mermaid' });
+                }, 50);
+            }
+        }
+
+        // Theme Toggle Support
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('light-theme');
+            const isLight = body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            updateThemeIcon(isLight);
+            updateChartsTheme();
+        }
+
+        function updateThemeIcon(isLight) {
+            const icon = document.getElementById('themeIcon');
+            if (isLight) {
+                // Sun Icon
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                `;
+                icon.setAttribute('class', 'w-4 h-4 text-amber-500');
+            } else {
+                // Moon Icon
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                `;
+                icon.setAttribute('class', 'w-4 h-4 text-gray-300');
+            }
+        }
+
+        function updateChartsTheme() {
+            const isLight = document.body.classList.contains('light-theme');
+            const gridColor = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.05)';
+            const tickColor = isLight ? '#475569' : '#9ca3af';
+            const legendColor = isLight ? '#0f172a' : '#f3f4f6';
+
+            if (timelineChart) {
+                timelineChart.options.scales.x.grid.color = gridColor;
+                timelineChart.options.scales.x.ticks.color = tickColor;
+                timelineChart.options.scales.y.grid.color = gridColor;
+                timelineChart.options.scales.y.ticks.color = tickColor;
+                timelineChart.options.plugins.legend.labels.color = legendColor;
+                timelineChart.update();
+            }
+
+            if (channelChart) {
+                channelChart.options.plugins.legend.labels.color = legendColor;
+                channelChart.update();
+            }
+        }
+
+        // On Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const isLight = savedTheme === 'light';
+            if (isLight) {
+                document.body.classList.add('light-theme');
+            }
+            updateThemeIcon(isLight);
+            loadAnalytics();
+        });
+
+        // 1. Fetch Analytics data and load charts
+        async function loadAnalytics() {
+            const days = document.getElementById('timeRangeSelect').value;
+            try {
+                const res = await fetch(`/api/analytics?days=${days}`);
+                const data = await res.json();
+                
+                // Update KPI Cards
+                document.getElementById('kpi-total').innerText = data.totalCount;
+                document.getElementById('kpi-sent').innerText = data.totalSent;
+                document.getElementById('kpi-opted-out').innerText = data.totalOptedOut;
+                document.getElementById('kpi-failed').innerText = data.totalFailed;
+
+                const sentPct = data.totalCount > 0 ? Math.round((data.totalSent / data.totalCount) * 100) : 0;
+                const optPct = data.totalCount > 0 ? Math.round((data.totalOptedOut / data.totalCount) * 100) : 0;
+                const failPct = data.totalCount > 0 ? Math.round((data.totalFailed / data.totalCount) * 100) : 0;
+
+                document.getElementById('kpi-sent-pct').innerText = `${sentPct}% success rate`;
+                document.getElementById('kpi-opted-out-pct').innerText = `${optPct}% volume`;
+                document.getElementById('kpi-failed-pct').innerText = `${failPct}% failure rate`;
+
+                // Update Channel small counter blocks
+                document.getElementById('cnt-email').innerText = data.channelDistribution.EMAIL || 0;
+                document.getElementById('cnt-sms').innerText = data.channelDistribution.SMS || 0;
+                document.getElementById('cnt-inapp').innerText = data.channelDistribution.IN_APP || 0;
+
+                // Render Timeline Line Chart
+                renderTimelineChart(data.timeline);
+
+                // Render Channel Distribution Doughnut Chart
+                renderChannelChart(data.channelDistribution);
+
+                // Render Logs Table
+                renderLogsTable(data.recentLogs);
+
+            } catch (err) {
+                console.error("Failed to load analytics dashboard data:", err);
+            }
+        }
+
+        // 2. Render line chart
+        function renderTimelineChart(timeline) {
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            const dates = timeline.map(t => t.date);
+            const sentValues = timeline.map(t => t.sent);
+            const failedValues = timeline.map(t => t.failed);
+            const optedOutValues = timeline.map(t => t.optedOut);
+
+            if (timelineChart) {
+                timelineChart.destroy();
+            }
+
+            const isLight = document.body.classList.contains('light-theme');
+            const gridColor = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.05)';
+            const tickColor = isLight ? '#475569' : '#9ca3af';
+            const legendColor = isLight ? '#0f172a' : '#f3f4f6';
+
+            timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Delivered (Success)',
+                            data: sentValues,
+                            borderColor: '#10b981',
+                            backgroundColor: isLight ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.05)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Opted Out',
+                            data: optedOutValues,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'transparent',
+                            fill: false,
+                            tension: 0.35,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Failed Attempts',
+                            data: failedValues,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'transparent',
+                            fill: false,
+                            tension: 0.35,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11 } }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: tickColor, font: { family: 'Plus Jakarta Sans', size: 11 } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: legendColor,
+                                font: { family: 'Plus Jakarta Sans', size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Render doughnut chart
+        function renderChannelChart(channels) {
+            const ctx = document.getElementById('channelChart').getContext('2d');
+            const dataValues = [
+                channels.EMAIL || 0,
+                channels.SMS || 0,
+                channels.IN_APP || 0
+            ];
+
+            if (channelChart) {
+                channelChart.destroy();
+            }
+
+            const isLight = document.body.classList.contains('light-theme');
+            const legendColor = isLight ? '#0f172a' : '#f3f4f6';
+
+            channelChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Email', 'SMS', 'In-App'],
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: ['#8b5cf6', '#ec4899', '#06b6d4'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: legendColor,
+                                padding: 16,
+                                font: { family: 'Plus Jakarta Sans', size: 12 }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // 4. Render logs table
+        function renderLogsTable(logs) {
+            const body = document.getElementById('logsTableBody');
+            body.innerHTML = '';
+            
+            if (logs.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-gray-500">No dispatch history logs available.</td></tr>`;
+                return;
+            }
+
+            logs.forEach(log => {
+                const time = new Date(log.createdAt).toLocaleString();
+                const statusBadge = `<span class="px-2.5 py-1 text-xs font-semibold rounded-full badge-${log.status.toLowerCase()}">${log.status}</span>`;
+                const contentText = log.status === 'FAILED' ? log.errorMessage : (log.subject ? `<b>[${log.subject}]</b> ` : '') + log.body;
+
+                const row = document.createElement('tr');
+                row.className = 'border-b border-white/[0.04] hover:bg-white/[0.02]';
+                row.innerHTML = `
+                    <td class="py-4 px-4 text-xs font-medium text-gray-400 whitespace-nowrap">${time}</td>
+                    <td class="py-4 px-4 font-semibold text-white whitespace-nowrap">${log.userId}</td>
+                    <td class="py-4 px-4 text-violet-400 font-mono text-xs whitespace-nowrap">${log.templateKey}</td>
+                    <td class="py-4 px-4 text-xs whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300 font-medium">${log.channel}</span></td>
+                    <td class="py-4 px-4">${statusBadge}</td>
+                    <td class="py-4 px-4 text-xs text-gray-400 whitespace-nowrap">${log.channel === 'EMAIL' ? log.recipientEmail : (log.channel === 'SMS' ? log.recipientPhone : 'N/A')}</td>
+                    <td class="py-4 px-4 text-xs max-w-xs truncate" title="${contentText.replace(/<[^>]*>/g, '')}">${contentText}</td>
+                `;
+                body.appendChild(row);
+            });
+        }
+
+        // 5. Load Settings & In-App Inbox for user
+        async function loadUserSettingsAndInbox() {
+            const userId = document.getElementById('simUserSelect').value;
+            
+            // Fetch Settings
+            try {
+                const res = await fetch(`/api/notifications/settings/${userId}`);
+                const data = await res.json();
+                document.getElementById('prefEmail').checked = data.emailEnabled;
+                document.getElementById('prefSms').checked = data.smsEnabled;
+                document.getElementById('prefInApp').checked = data.inAppEnabled;
+            } catch (err) {
+                console.error("Failed to load user settings:", err);
+            }
+
+            // Fetch Inbox
+            try {
+                const res = await fetch(`/api/notifications/in-app?userId=${userId}`);
+                const data = await res.json();
+                
+                const container = document.getElementById('inboxContainer');
+                container.innerHTML = '';
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p class="text-gray-500 text-sm text-center py-12">In-app inbox is empty.</p>`;
+                    return;
+                }
+
+                data.forEach(msg => {
+                    const card = document.createElement('div');
+                    card.className = `p-4 rounded-xl border transition-all ${msg.read ? 'bg-white/[0.01] border-white/5 opacity-60' : 'bg-white/[0.04] border-white/10 shadow-sm'}`;
+                    
+                    const readIndicator = msg.read ? '' : '<span class="h-2 w-2 rounded-full bg-violet-500 inline-block mr-2"></span>';
+                    const actionBtn = msg.read ? '' : `<button onclick="markNotificationRead(${msg.id})" class="text-xs text-violet-400 hover:text-violet-300 font-semibold">Mark Read</button>`;
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-sm font-bold text-white flex items-center">${readIndicator}${msg.title}</span>
+                            <span class="text-[10px] text-gray-500">${new Date(msg.createdAt).toLocaleTimeString()}</span>
+                        </div>
+                        <p class="text-xs text-gray-300 mb-2 leading-relaxed">${msg.content}</p>
+                        <div class="flex justify-end">${actionBtn}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Failed to load user in-app inbox:", err);
+            }
+        }
+
+        // 6. Save preferences
+        async function saveUserSettings() {
+            const userId = document.getElementById('simUserSelect').value;
+            const body = {
+                userId: userId,
+                emailEnabled: document.getElementById('prefEmail').checked,
+                smsEnabled: document.getElementById('prefSms').checked,
+                inAppEnabled: document.getElementById('prefInApp').checked
+            };
+
+            try {
+                const res = await fetch(`/api/notifications/settings/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (res.ok) {
+                    alert("Preferences saved successfully!");
+                    loadUserSettingsAndInbox();
+                }
+            } catch (err) {
+                console.error("Failed to update user settings:", err);
+            }
+        }
+
+        // 7. Mark in-app as read
+        async function markNotificationRead(id) {
+            try {
+                const res = await fetch(`/api/notifications/in-app/${id}/read`, { method: 'POST' });
+                if (res.ok) {
+                    loadUserSettingsAndInbox();
+                }
+            } catch (err) {
+                console.error("Failed to mark in-app notification read:", err);
+            }
+        }
+
+        // 8. Update placeholder fields dynamically based on template select
+        const templatePlaceholders = {
+            WALLET_CREDITED: ['username', 'amount', 'senderName', 'balance'],
+            WALLET_DEBITED: ['username', 'amount', 'description', 'balance'],
+            OTP_VERIFICATION: ['otp'],
+            TRANSACTION_FAILED: ['username', 'amount', 'recipient', 'reason'],
+            WELCOME: ['username']
+        };
+
+        function updatePlaceholderFields() {
+            const tpl = document.getElementById('sendTemplateSelect').value;
+            const container = document.getElementById('placeholderFieldsContainer');
+            container.innerHTML = '';
+
+            const params = templatePlaceholders[tpl] || [];
+            params.forEach(p => {
+                const block = document.createElement('div');
+                block.className = 'space-y-1';
+                
+                // Add demo values to placeholders for quicker testing
+                let val = '';
+                if (p === 'username') val = 'Alice';
+                else if (p === 'amount') val = '$100.00';
+                else if (p === 'senderName') val = 'Bob';
+                else if (p === 'balance') val = '$850.00';
+                else if (p === 'description') val = 'Premium Subscription';
+                else if (p === 'otp') val = '837492';
+                else if (p === 'recipient') val = 'David';
+                else if (p === 'reason') val = 'Insufficient Funds';
+
+                block.innerHTML = `
+                    <label class="text-xs text-gray-400 capitalize">Variable: ${p}</label>
+                    <input type="text" data-key="${p}" value="${val}" class="placeholder-input w-full bg-gray-900 border border-white/10 p-2.5 rounded-lg text-xs focus:outline-none focus:border-violet-500">
+                `;
+                container.appendChild(block);
+            });
+            
+            // Autofill contact info
+            const userId = document.getElementById('simUserSelect').value;
+            document.getElementById('sendEmail').value = `${userId}@example.com`;
+            document.getElementById('sendPhone').value = `+15550000`;
+        }
+
+        // 9. Dispatch a simulated notification send
+        async function triggerNotificationSend() {
+            const userId = document.getElementById('simUserSelect').value;
+            const templateKey = document.getElementById('sendTemplateSelect').value;
+            
+            const params = {};
+            document.querySelectorAll('.placeholder-input').forEach(input => {
+                params[input.getAttribute('data-key')] = input.value;
+            });
+
+            const requestBody = {
+                userId: userId,
+                templateKey: templateKey,
+                channels: [], // Empty lets the service evaluation trigger all templates matching
+                parameters: params,
+                recipientEmail: document.getElementById('sendEmail').value,
+                recipientPhone: document.getElementById('sendPhone').value
+            };
+
+            const respContainer = document.getElementById('sendResponseContainer');
+            const respText = document.getElementById('sendResponseText');
+
+            try {
+                const res = await fetch('/api/notifications/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                const data = await res.json();
+                
+                respContainer.classList.remove('hidden');
+                respText.innerText = JSON.stringify(data, null, 2);
+
+                // Reload inbox and refresh analytics if successfully triggered
+                setTimeout(() => {
+                    loadUserSettingsAndInbox();
+                }, 400);
+
+            } catch (err) {
+                console.error("Failed to send simulation request:", err);
+            }
+        }
+
+        // 10. Load templates table
+        async function loadTemplates() {
+            try {
+                const res = await fetch('/api/templates');
+                const data = await res.json();
+                
+                const body = document.getElementById('templatesTableBody');
+                body.innerHTML = '';
+
+                data.forEach(tpl => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-white/[0.04] hover:bg-white/[0.02]';
+                    row.innerHTML = `
+                        <td class="py-4 px-4 font-mono font-bold text-violet-400 whitespace-nowrap">${tpl.templateKey}</td>
+                        <td class="py-4 px-4 whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300 text-xs font-semibold">${tpl.channel}</span></td>
+                        <td class="py-4 px-4 font-semibold text-white whitespace-nowrap">${tpl.subjectTemplate || '<span class="text-gray-500 italic">None</span>'}</td>
+                        <td class="py-4 px-4 text-xs text-gray-300">${tpl.bodyTemplate}</td>
+                        <td class="py-4 px-4 text-right whitespace-nowrap">
+                            <button onclick="editTemplate('${tpl.templateKey}', '${tpl.channel}', '${tpl.subjectTemplate || ''}', '${tpl.bodyTemplate.replace(/'/g, "\\'")}')" class="text-xs text-violet-400 hover:text-violet-300 font-semibold mr-3">Edit</button>
+                            <button onclick="deleteTemplate('${tpl.templateKey}', '${tpl.channel}')" class="text-xs text-red-400 hover:text-red-300 font-semibold">Delete</button>
+                        </td>
+                    `;
+                    body.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Failed to load templates:", err);
+            }
+        }
+
+        // 11. Create or edit templates modals
+        function openCreateTemplateModal() {
+            document.getElementById('modalTitle').innerText = 'Add New Template';
+            document.getElementById('tplKey').value = '';
+            document.getElementById('tplKey').disabled = false;
+            document.getElementById('tplChannel').value = 'EMAIL';
+            document.getElementById('tplChannel').disabled = false;
+            document.getElementById('tplSubject').value = '';
+            document.getElementById('tplBody').value = '';
+            
+            document.getElementById('templateModal').classList.remove('hidden');
+        }
+
+        function editTemplate(key, channel, subject, body) {
+            document.getElementById('modalTitle').innerText = 'Edit Template';
+            document.getElementById('tplKey').value = key;
+            document.getElementById('tplKey').disabled = true; // Key cannot be edited in composite key
+            document.getElementById('tplChannel').value = channel;
+            document.getElementById('tplChannel').disabled = true; // Channel cannot be edited
+            document.getElementById('tplSubject').value = subject;
+            document.getElementById('tplBody').value = body;
+
+            document.getElementById('templateModal').classList.remove('hidden');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.add('hidden');
+        }
+
+        async function saveTemplate() {
+            const body = {
+                templateKey: document.getElementById('tplKey').value,
+                channel: document.getElementById('tplChannel').value,
+                subjectTemplate: document.getElementById('tplSubject').value,
+                bodyTemplate: document.getElementById('tplBody').value
+            };
+
+            try {
+                const res = await fetch('/api/templates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (res.ok) {
+                    closeTemplateModal();
+                    loadTemplates();
+                }
+            } catch (err) {
+                console.error("Failed to save template:", err);
+            }
+        }
+
+        async function deleteTemplate(key, channel) {
+            if (!confirm(`Are you sure you want to delete template ${key} for channel ${channel}?`)) return;
+            
+            try {
+                const res = await fetch(`/api/templates/${key}/${channel}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadTemplates();
+                }
+            } catch (err) {
+                console.error("Failed to delete template:", err);
+            }
+        }
+
+        // Fullscreen Diagram Zoom & Maximize Helpers
+        let currentZoom = 1.0;
+
+        function maximizeDiagram() {
+            const container = document.getElementById('diagramContainer');
+            const svg = container.querySelector('svg');
+            if (!svg) return;
+
+            const modalContent = document.getElementById('modalDiagramContent');
+            modalContent.innerHTML = '';
+            
+            const clonedSvg = svg.cloneNode(true);
+            clonedSvg.removeAttribute('width');
+            clonedSvg.removeAttribute('height');
+            clonedSvg.style.width = '100%';
+            clonedSvg.style.height = 'auto';
+            clonedSvg.style.maxWidth = '90vw';
+            clonedSvg.style.maxHeight = '75vh';
+            modalContent.appendChild(clonedSvg);
+
+            currentZoom = 1.0; // reset zoom
+            modalContent.style.transform = `scale(${currentZoom})`;
+
+            document.getElementById('diagramModal').classList.remove('hidden');
+        }
+
+        function zoomDiagram(factor) {
+            const modalContent = document.getElementById('modalDiagramContent');
+            if (factor === 0) {
+                currentZoom = 1.0;
+            } else {
+                currentZoom = Math.min(Math.max(currentZoom * factor, 0.4), 4.0);
+            }
+            modalContent.style.transform = `scale(${currentZoom})`;
+        }
+
+        function closeDiagramModal() {
+            document.getElementById('diagramModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
