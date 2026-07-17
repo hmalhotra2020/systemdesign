@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Wallet Admin Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-gradient: radial-gradient(circle at top right, #1a1b36 0%, #0d0e15 100%);
+            --glass-bg: rgba(25, 27, 44, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --font-family: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        /* Glassmorphism scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-purple);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-section h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-section p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn-seed {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-seed:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn-seed:active {
+            transform: translateY(0);
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.5rem;
+            border-radius: 14px;
+            width: fit-content;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Main layouts */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Overview cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+        }
+
+        .stat-card.blue::before {
+            background: linear-gradient(90deg, var(--accent-blue), #60a5fa);
+        }
+
+        .stat-card.green::before {
+            background: linear-gradient(90deg, var(--accent-green), #34d399);
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .stat-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Charts / Visualizations Grid */
+        .visual-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .visual-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        /* Forms & Inputs */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        .btn-action {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-action.primary {
+            background: var(--accent-purple);
+            color: white;
+            border: none;
+        }
+
+        .btn-action.primary:hover {
+            background: #7c3aed;
+        }
+
+        /* Lists & Tables */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .custom-table th {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .custom-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.95rem;
+        }
+
+        .custom-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Risk Profile Badge styles */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.high {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge.medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge.low {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Select controls */
+        .select-range {
+            background: rgba(0, 0, 0, 0.25);
+            color: white;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Risk profiling presentation view */
+        .risk-profile-view {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .risk-score-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid var(--accent-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .score-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .risk-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .meta-box {
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0.8rem;
+            text-align: center;
+        }
+
+        .meta-box span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-box strong {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .notification-banner {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notification-banner.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .notification-banner.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Notification Banner -->
+    <div id="banner" class="notification-banner">
+        <span id="banner-text">Loading...</span>
+        <button onclick="hideBanner()" style="background:none; border:none; color:inherit; font-size:1.2rem; cursor:pointer;">&times;</button>
+    </div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo-section">
+            <h1>Antigravity Wallet Admin</h1>
+            <p>Operational Visibility, Integrity Auditing & Customer Intelligence</p>
+        </div>
+        <div>
+            <button class="btn-seed" onclick="triggerSeedDb()">Seed Fake Data (3 Months)</button>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-analytics')">Operational Analytics</button>
+        <button class="tab-btn" onclick="switchTab('tab-audit')">Integrity & Auditing</button>
+        <button class="tab-btn" onclick="switchTab('tab-customers')">Customer Intelligence</button>
+    </div>
+
+    <!-- TAB 1: OPERATIONAL ANALYTICS -->
+    <div id="tab-analytics" class="tab-content active">
+        <!-- Stats cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Transaction Range Summary</div>
+                <div class="stat-value" id="stat-total-count">0</div>
+                <div class="stat-desc" id="stat-range-label">Daily count</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-title">Total Volume</div>
+                <div class="stat-value" id="stat-total-volume">₹0.00</div>
+                <div class="stat-desc">Accumulated volume (INR)</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-title">Success Rate</div>
+                <div class="stat-value" id="stat-success-rate">0%</div>
+                <div class="stat-desc" id="stat-fail-rate">0% failure rate</div>
+            </div>
+        </div>
+
+        <div class="visual-grid">
+            <!-- Transaction trends -->
+            <div class="panel">
+                <div class="panel-title">
+                    <span>Transaction Volume Trends</span>
+                    <select class="select-range" id="trend-range-select" onchange="loadVolumeTrends()">
+                        <option value="daily">Daily View (Last 24 Hrs)</option>
+                        <option value="weekly" selected>Weekly View (Last 7 Days)</option>
+                        <option value="monthly">Monthly View (Last 30 Days)</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Queue monitor status -->
+            <div class="panel">
+                <div class="panel-title">Processing Queues</div>
+                <div class="chart-container">
+                    <canvas id="healthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: INTEGRITY & AUDITING -->
+    <div id="tab-audit" class="tab-content">
+        <div class="visual-grid">
+            <!-- Left panel: consistency check triggers & mismatches lists -->
+            <div class="panel">
+                <div class="panel-title">
+                    <span>Ledger Consistency Audit</span>
+                    <button class="btn-seed" onclick="triggerLedgerVerification()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Run Verification Audit</button>
+                </div>
+                <div style="overflow-x: auto; max-height: 400px;">
+                    <table class="custom-table" id="mismatch-table">
+                        <thead>
+                            <tr>
+                                <th>Account ID</th>
+                                <th>Available Balance</th>
+                                <th>Stored Ledger Balance</th>
+                                <th>Calculated Ledger Sum</th>
+                                <th>Discrepancy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-secondary);">No ledger mismatches found. Run audit to check consistency.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right panel: manual reconciliation overriding -->
+            <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="panel-title">Manual Reconciler</div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        Force override or re-sync transaction status for individual transactions that are stuck in a PENDING state.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label" for="reconcile-tx-id">Transaction ID</label>
+                        <input class="form-input" type="number" id="reconcile-tx-id" placeholder="e.g. 104">
+                    </div>
+                </div>
+                <button class="btn-action primary" onclick="triggerReconcile()">Reconcile Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: CUSTOMER INTELLIGENCE -->
+    <div id="tab-customers" class="tab-content">
+        <div class="visual-grid">
+            <!-- Left Column: tables of top active and high value -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="panel">
+                    <div class="panel-title">Top Active Customers</div>
+                    <div style="overflow-x: auto;">
+                        <table class="custom-table" id="top-active-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Transaction Count</th>
+                                    <th>Total Volume</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No data loaded.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">
+                        <span>High-Value Monitoring</span>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size:0.85rem; color:var(--text-secondary);">Threshold:</span>
+                            <input class="form-input" type="number" id="high-value-threshold" value="3000" style="width: 100px; padding: 0.25rem 0.5rem; font-size: 0.85rem;" onchange="loadHighValueCustomers()">
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="custom-table" id="high-value-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Transaction Count</th>
+                                    <th>Total Volume</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No data loaded.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: risk profiling details -->
+            <div class="panel">
+                <div class="panel-title">Customer Risk Profiler</div>
+                <div class="form-group">
+                    <label class="form-label" for="risk-cust-id">Customer ID Lookup</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input class="form-input" type="number" id="risk-cust-id" value="2" placeholder="e.g. 2">
+                        <button class="btn-action" style="width: auto; padding: 0.5rem 1rem;" onclick="loadRiskProfile()">Find</button>
+                    </div>
+                </div>
+
+                <div id="risk-profile-container" class="risk-profile-view" style="display: none;">
+                    <div class="risk-score-display">
+                        <div class="score-info">
+                            <h4 id="risk-title">Customer Profile</h4>
+                            <p>Activity score aggregates intents and transactions.</p>
+                        </div>
+                        <div class="score-circle" id="risk-score">0.0</div>
+                    </div>
+
+                    <div class="risk-meta-grid">
+                        <div class="meta-box">
+                            <span>Risk Level</span>
+                            <strong id="risk-label" class="badge">UNKNOWN</strong>
+                        </div>
+                        <div class="meta-box">
+                            <span>Txn Volume</span>
+                            <strong id="risk-volume">₹0.00</strong>
+                        </div>
+                        <div class="meta-box">
+                            <span>Txn Count</span>
+                            <strong id="risk-txn-count">0</strong>
+                        </div>
+                        <div class="meta-box">
+                            <span>Pending Intents</span>
+                            <strong id="risk-pending-intents">0</strong>
+                        </div>
+                    </div>
+                </div>
+                <div id="risk-profile-empty" style="text-align: center; color: var(--text-secondary); padding: 3rem 0;">
+                    Search for a customer ID to display their behavioral risk analysis.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for Chart.js instances
+        let trendsChartInstance = null;
+        let healthChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial load
+            loadAnalyticsSummary();
+            loadVolumeTrends();
+            loadSystemHealth();
+            loadTopActiveCustomers();
+            loadHighValueCustomers();
+        });
+
+        // Tab switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'tab-analytics') {
+                loadAnalyticsSummary();
+                loadVolumeTrends();
+                loadSystemHealth();
+            } else if (tabId === 'tab-audit') {
+                loadLedgerMismatches();
+            } else if (tabId === 'tab-customers') {
+                loadTopActiveCustomers();
+                loadHighValueCustomers();
+                loadRiskProfile();
+            }
+        }
+
+        // Notification utilities
+        function showBanner(message, type = 'info') {
+            const banner = document.getElementById('banner');
+            const bannerText = document.getElementById('banner-text');
+            bannerText.innerText = message;
+            banner.className = `notification-banner ${type}`;
+            banner.style.display = 'flex';
+            setTimeout(hideBanner, 6000);
+        }
+
+        function hideBanner() {
+            document.getElementById('banner').style.display = 'none';
+        }
+
+        // POST /admin/seed-db
+        async function triggerSeedDb() {
+            try {
+                showBanner('Seeding database. Please wait...', 'info');
+                const res = await fetch('/admin/seed-db', { method: 'POST' });
+                if (res.ok) {
+                    showBanner('Database successfully seeded with 3 months of backdated transaction data!', 'success');
+                    // Reload currently visible tab
+                    const activeTab = document.querySelector('.tab-content.active').id;
+                    if (activeTab === 'tab-analytics') {
+                        loadAnalyticsSummary();
+                        loadVolumeTrends();
+                        loadSystemHealth();
+                    } else if (activeTab === 'tab-audit') {
+                        loadLedgerMismatches();
+                    } else if (activeTab === 'tab-customers') {
+                        loadTopActiveCustomers();
+                        loadHighValueCustomers();
+                    }
+                } else {
+                    const txt = await res.text();
+                    showBanner(`Failed to seed database: ${txt}`, 'error');
+                }
+            } catch (err) {
+                showBanner(`Error seeding database: ${err.message}`, 'error');
+            }
+        }
+
+        // GET /admin/analytics/txns/summary
+        async function loadAnalyticsSummary() {
+            try {
+                const res = await fetch('/admin/analytics/txns/summary?range=weekly');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('stat-total-count').innerText = data.totalCount;
+                    document.getElementById('stat-total-volume').innerText = '₹' + data.totalVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                    document.getElementById('stat-success-rate').innerText = Math.round(data.successRate) + '%';
+                    document.getElementById('stat-fail-rate').innerText = (Math.round(data.failureRate * 10) / 10) + '% failure rate';
+                }
+            } catch (err) {
+                console.error('Error loading summary', err);
+            }
+        }
+
+        // GET /admin/analytics/txns/volume-trends
+        async function loadVolumeTrends() {
+            const range = document.getElementById('trend-range-select').value;
+            try {
+                const res = await fetch(`/admin/analytics/txns/volume-trends?range=${range}`);
+                if (res.ok) {
+                    const points = await res.json();
+                    
+                    const labels = points.map(p => {
+                        const date = new Date(p.period);
+                        return range === 'daily' 
+                            ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    });
+                    const counts = points.map(p => p.count);
+
+                    if (trendsChartInstance) {
+                        trendsChartInstance.destroy();
+                    }
+
+                    const ctx = document.getElementById('trendsChart').getContext('2d');
+                    trendsChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Transaction Count',
+                                data: counts,
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.35,
+                                pointBackgroundColor: '#ec4899',
+                                pointBorderColor: '#fff',
+                                pointRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                    ticks: { color: '#9ca3af' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#9ca3af' }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // GET /admin/analytics/system-health
+        async function loadSystemHealth() {
+            try {
+                const res = await fetch('/admin/analytics/system-health');
+                if (res.ok) {
+                    const health = await res.json();
+                    
+                    if (healthChartInstance) {
+                        healthChartInstance.destroy();
+                    }
+
+                    const ctx = document.getElementById('healthChart').getContext('2d');
+                    healthChartInstance = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Pending', 'Completed', 'Failed', 'Cancelled', 'Reversed'],
+                            datasets: [{
+                                data: [
+                                    health.pendingTransactions,
+                                    health.completedTransactions,
+                                    health.failedTransactions,
+                                    health.cancelledTransactions,
+                                    health.reversedTransactions
+                                ],
+                                backgroundColor: ['#3b82f6', '#10b981', '#ef4444', '#6b7280', '#ec4899'],
+                                borderWidth: 0,
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: '#f3f4f6',
+                                        font: { family: 'Outfit' },
+                                        padding: 15
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // POST /admin/audit/ledger/verify
+        async function triggerLedgerVerification() {
+            try {
+                showBanner('Running Ledger Consistency Check...', 'info');
+                const res = await fetch('/admin/audit/ledger/verify', { method: 'POST' });
+                if (res.ok) {
+                    const data = await res.json();
+                    showBanner(`Ledger verification completed. Mismatches detected: ${data.mismatchCount}`, data.mismatchCount > 0 ? 'error' : 'success');
+                    displayMismatches(data.mismatches);
+                } else {
+                    const txt = await res.text();
+                    showBanner(`Verification failed: ${txt}`, 'error');
+                }
+            } catch (err) {
+                showBanner(`Error: ${err.message}`, 'error');
+            }
+        }
+
+        // GET /admin/audit/ledger/mismatches
+        async function loadLedgerMismatches() {
+            try {
+                const res = await fetch('/admin/audit/ledger/mismatches');
+                if (res.ok) {
+                    const mismatches = await res.json();
+                    displayMismatches(mismatches);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function displayMismatches(mismatches) {
+            const tbody = document.getElementById('mismatch-table').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+            if (mismatches.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No ledger mismatches found. All accounts are consistent!</td></tr>`;
+                return;
+            }
+            mismatches.forEach(m => {
+                const diff = (m.expectedLedgerBalance - m.ledgerBalance);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${m.accountId}</strong></td>
+                    <td>₹${m.availableBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td>₹${m.ledgerBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td>₹${m.expectedLedgerBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td style="color: var(--accent-red); font-weight: 600;">₹${diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // POST /admin/transactions/{id}/reconcile
+        async function triggerReconcile() {
+            const txId = document.getElementById('reconcile-tx-id').value;
+            if (!txId) {
+                showBanner('Please provide a Transaction ID to reconcile.', 'error');
+                return;
+            }
+            try {
+                showBanner(`Reconciling Transaction #${txId}...`, 'info');
+                const res = await fetch(`/admin/transactions/${txId}/reconcile`, { method: 'POST' });
+                if (res.ok) {
+                    const record = await res.json();
+                    showBanner(`Transaction #${txId} reconciled successfully! New status: ${record.status}`, 'success');
+                    document.getElementById('reconcile-tx-id').value = '';
+                } else {
+                    const txt = await res.text();
+                    showBanner(`Failed to reconcile Transaction: ${txt}`, 'error');
+                }
+            } catch (err) {
+                showBanner(`Error: ${err.message}`, 'error');
+            }
+        }
+
+        // GET /admin/customers/top-active
+        async function loadTopActiveCustomers() {
+            try {
+                const res = await fetch('/admin/customers/top-active?limit=5');
+                if (res.ok) {
+                    const list = await res.json();
+                    const tbody = document.getElementById('top-active-table').getElementsByTagName('tbody')[0];
+                    tbody.innerHTML = '';
+                    if (list.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No customer activity found.</td></tr>`;
+                        return;
+                    }
+                    list.forEach(c => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>Customer #${c.customerId}</strong></td>
+                            <td>${c.transactionCount} transactions</td>
+                            <td>₹${c.totalVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // GET /admin/customers/high-value
+        async function loadHighValueCustomers() {
+            const threshold = document.getElementById('high-value-threshold').value || 3000;
+            try {
+                const res = await fetch(`/admin/customers/high-value?threshold=${threshold}`);
+                if (res.ok) {
+                    const list = await res.json();
+                    const tbody = document.getElementById('high-value-table').getElementsByTagName('tbody')[0];
+                    tbody.innerHTML = '';
+                    if (list.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No customers exceed threshold of ₹${threshold}.</td></tr>`;
+                        return;
+                    }
+                    list.forEach(c => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>Customer #${c.customerId}</strong></td>
+                            <td>${c.transactionCount} txns</td>
+                            <td>₹${c.totalVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // GET /admin/customers/{id}/risk-profile
+        async function loadRiskProfile() {
+            const custId = document.getElementById('risk-cust-id').value;
+            if (!custId) return;
+            try {
+                const res = await fetch(`/admin/customers/${custId}/risk-profile`);
+                if (res.ok) {
+                    const profile = await res.json();
+                    
+                    document.getElementById('risk-profile-empty').style.display = 'none';
+                    const container = document.getElementById('risk-profile-container');
+                    container.style.display = 'flex';
+                    
+                    document.getElementById('risk-title').innerText = `Customer #${profile.customerId} Behavioral Analysis`;
+                    document.getElementById('risk-score').innerText = profile.activityScore.toFixed(1);
+                    
+                    const label = document.getElementById('risk-label');
+                    label.innerText = profile.riskLabel;
+                    label.className = `badge ${profile.riskLabel.toLowerCase()}`;
+                    
+                    document.getElementById('risk-volume').innerText = '₹' + profile.totalVolume.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                    document.getElementById('risk-txn-count').innerText = profile.transactionCount;
+                    document.getElementById('risk-pending-intents').innerText = profile.pendingIntents;
+                } else {
+                    document.getElementById('risk-profile-empty').style.display = 'block';
+                    document.getElementById('risk-profile-container').style.display = 'none';
+                    showBanner(`Customer risk profile lookup failed or customer does not exist.`, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

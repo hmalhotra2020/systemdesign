@@ -1,0 +1,46 @@
+plugins {
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.jdbi:jdbi3-core:3.41.0'
+    implementation 'org.jdbi:jdbi3-sqlobject:3.41.0'
+    implementation 'org.jdbi:jdbi3-spring5:3.41.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    runtimeOnly 'org.postgresql:postgresql:42.6.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'com.h2database:h2:2.1.214'
+
+    // 1. The API to write tests
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    
+    // 2. The Engine to find and run Jupiter tests (Fixes the "no tests" error)
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+    
+    // 3. The Launcher Gradle needs to orchestrate execution
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,45 @@
+# Gradle
+.gradle/
+build/
+gradle/
+out/
+
+# IntelliJ / VS Code
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+
+# Generated and binary files
+*.class
+*.jar
+*.war
+*.ear
+
+# Metals
+.metals/
+bin/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# OS generated files
+Thumbs.db
+ ehthumbs.db
+
+# Node modules (if any frontend tooling is added)
+node_modules/
+
+# Sensitive or environment-specific
+.env
